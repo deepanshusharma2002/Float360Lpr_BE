@@ -241,7 +241,7 @@ const deleteOprById = async (req, res, next) => {
 
 const createOpr = async (req, res, next) => {
   try {
-    const doc_code = "OPR";
+    const doc_code = "LPR";
     const opr_series = await generateSeries(doc_code);
     req.body.opr_num = opr_series;
     console.log("opr_series: ", opr_series);
@@ -252,15 +252,16 @@ const createOpr = async (req, res, next) => {
       company_id,
       opr_date,
       division_id,
-      buy_from,
-      buying_house_id,
-      shipment_mode_id,
-      shipment_type_id,
+      // buy_from,
+      // buying_house_id,
+      // shipment_mode_id,
+      // shipment_type_id,
       delivery_timeline_id,
       department_id,
+      delivery_type,
       requested_by,
-      no_quot_email_alert,
-      item_category_id,
+      // no_quot_email_alert,
+      // item_category_id,
       remarks,
       suppliers,
       created_by,
