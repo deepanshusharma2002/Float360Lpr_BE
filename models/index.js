@@ -426,18 +426,44 @@ db.PackageTypeMaster = require("./Packing/PackageType.js")(
 );
 
 //Shipping
-db.ci_doc_movement_master = require('./Shipping/DocMovementMaster')(sequelize, DataTypes);
-db.ci_shipping_doc_movement_dt = require('./Shipping/CiShippingDocMovementDt.js')(sequelize, DataTypes);
-db.Container = require('./Shipping/container.js')(sequelize, DataTypes);
-db.VesselDetails = require('./Shipping/vessel_details.js')(sequelize, DataTypes);
-db.ShippingExpenses = require('./Shipping/shipping_expensesModal.js')(sequelize, DataTypes);
-db.shippment_instructions = require('./Shipping/ShippingInstructions')(sequelize, DataTypes);
-db.shippment_advise_additional_instruction = require('./Shipping/ShippingAdviseAditionalInformation.js')(sequelize, DataTypes);
-db.shippment_advise_master = require('./Shipping/ShippingAdvise.js')(sequelize, DataTypes);
-db.operations_shipping_expenses = require('./Shipping/OperationsShippingExpenseModel')(sequelize, DataTypes);
-db.shipping_expenses_container_allocation = require('./Shipping/ShippingExpenseContainerInformation.js')(sequelize, DataTypes);
-db.shipping_additinal_expenses = require('./Shipping/ShippingAdditinalExpense.js')(sequelize, DataTypes);
-db.pack_info = require('./Shipping/PackinfInfoModel.js')(sequelize, DataTypes);
+db.ci_doc_movement_master = require("./Shipping/DocMovementMaster")(
+  sequelize,
+  DataTypes
+);
+db.ci_shipping_doc_movement_dt =
+  require("./Shipping/CiShippingDocMovementDt.js")(sequelize, DataTypes);
+db.Container = require("./Shipping/container.js")(sequelize, DataTypes);
+db.VesselDetails = require("./Shipping/vessel_details.js")(
+  sequelize,
+  DataTypes
+);
+db.ShippingExpenses = require("./Shipping/shipping_expensesModal.js")(
+  sequelize,
+  DataTypes
+);
+db.shippment_instructions = require("./Shipping/ShippingInstructions")(
+  sequelize,
+  DataTypes
+);
+db.shippment_advise_additional_instruction =
+  require("./Shipping/ShippingAdviseAditionalInformation.js")(
+    sequelize,
+    DataTypes
+  );
+db.shippment_advise_master = require("./Shipping/ShippingAdvise.js")(
+  sequelize,
+  DataTypes
+);
+db.operations_shipping_expenses =
+  require("./Shipping/OperationsShippingExpenseModel")(sequelize, DataTypes);
+db.shipping_expenses_container_allocation =
+  require("./Shipping/ShippingExpenseContainerInformation.js")(
+    sequelize,
+    DataTypes
+  );
+db.shipping_additinal_expenses =
+  require("./Shipping/ShippingAdditinalExpense.js")(sequelize, DataTypes);
+db.pack_info = require("./Shipping/PackinfInfoModel.js")(sequelize, DataTypes);
 
 //document Master
 db.ApprovalMatrix = require("./Approval/ApprovalMatrix.js")(
@@ -454,11 +480,11 @@ db.shipment_advise_items = require("./Opreations/ShippmentAdviceItems.js")(
   sequelize,
   DataTypes
 );
-db.grn_qty = require("./Opreations/GrnQtyModel.js")(
-  sequelize,
-  DataTypes
-);
+db.grn_qty = require("./Opreations/GrnQtyModel.js")(sequelize, DataTypes);
 
+// Transportation 
+db.transportation_charges_lpr = require("./Quotation/Transportation_model.js")(sequelize, DataTypes);
+db.additional_charges_lpr = require('./Quotation/AdditionalCharge.js')(sequelize, DataTypes);
 
 // Set up associations
 const models = { ...db };

@@ -610,42 +610,38 @@ const deleteQuotationById = async (req, res, next) => {
 // Controller method to Create
 const createQuotation = async (req, res, next) => {
   console.dir(req.body, { depth: null });
-  // console.log(req.files);
-  const { quotation_details, quotation_docslist } = req.body;
+  console.log(req.files);
+  const {
+    rfq_id,
+    vendor_id,
+    reference_no,
+    vendor_reference_no,
+    reference_date,
+    quo_date,
+    currency,
+    delivery_terms,
+    lead_time,
+    lead_initiation_point,
+    payment_terms,
+    remarks,
+    quote_valid_till,
+    address,
+    total_cost,
+    opr_lead_time,
+
+    payment_milestone,
+    additional_charges,
+    charges,
+    ReuireDocData,
+    ItemData,
+    quotation_docslist,
+  } = req.body.quotation_details;
 
   const transaction = await sequelize.transaction(); // Start a transaction
 
   try {
     const doc_code = "QUO";
     const quotation_series = await generateSeries(doc_code);
-
-    const {
-      rfq_id,
-      vendor_id,
-      reference_no,
-      reference_date,
-      quo_date,
-      currency,
-      delivery_terms,
-      country_origin,
-      country_supply,
-      vendor_reference_no,
-      port_loading,
-      lead_initiation_point,
-      lead_time,
-      payment_terms,
-      remarks,
-      total_cost,
-      opr_lead_time,
-      port_of_loading,
-      charges,
-      shipment_type,
-      ItemData,
-      payment_milestone,
-      ReuireDocData,
-      quote_valid_till,
-      FreightArray,
-    } = quotation_details;
 
     // Generate quotation
     const newQuotationMaster = await quotation_master.create(
@@ -661,15 +657,12 @@ const createQuotation = async (req, res, next) => {
         currency,
         delivery_terms,
         quo_valid_till: quote_valid_till,
-        country_origin,
-        country_supply,
-        port_loading,
-        lead_time: `${lead_time} Weeks`,
+        lead_time: `${lead_time} Days`,
         payment_terms,
         remarks,
         total_cost,
+        address,
         opr_lead_time,
-        port_of_loading,
         status: 1,
       }
       // { transaction }
@@ -677,96 +670,7 @@ const createQuotation = async (req, res, next) => {
 
     const lastInsertedId = newQuotationMaster.quo_id;
 
-    // Process charges
-    const processCharges = async () => {
-      for (const key in charges) {
-        if (Number(charges[key]) !== 0) {
-          await additional_cost.create(
-            {
-              quo_id: lastInsertedId,
-              quo_num: quotation_series,
-              charge_name: key,
-              charge_amount: charges[key],
-              charges_by: "Supplier",
-              heading:
-                key === "load_transportation" ||
-                key === "special_packaging" ||
-                key === "inspection_charges" ||
-                key === "miscellaneous_inland"
-                  ? "Inland_Charges"
-                  : key === "bl" ||
-                    key === "container_seal" ||
-                    key === "container_stuffing" ||
-                    key === "thc" ||
-                    key === "vgm" ||
-                    key === "miscellaneous"
-                  ? "FOB"
-                  : "Freight_Charges",
-              status: 1,
-            },
-            { transaction }
-          );
-        }
-      }
-    };
-
-    await processCharges(); // Await the charge processing
-
-    if (shipment_type.toUpperCase() === "FCL") {
-      const AddFreightCharges = async () => {
-        await Promise.all(
-          FreightArray.map(async (item) => {
-            await db.additional_cost_freigth.create(
-              {
-                quo_id: lastInsertedId,
-                quo_num: quotation_series,
-                number_container: item.no_of_container,
-                type_container: item.types_of_container,
-                rate: item.rate,
-                total_freigth: item.total_freight,
-                for_delivery_term: delivery_terms,
-                charges_by: "Supplier",
-                heading: "Freigth Charges",
-                status: 1,
-              },
-              { transaction }
-            );
-          })
-        );
-      };
-
-      await AddFreightCharges();
-    } else if (
-      shipment_type.toUpperCase() === "AIR" ||
-      shipment_type.toUpperCase() === "RORO" ||
-      shipment_type.toUpperCase() === "LCL" ||
-      shipment_type.toUpperCase() === "BULK"
-    ) {
-      if (FreightArray && FreightArray.length > 0) {
-        await Promise.all(
-          FreightArray.map(async (item) => {
-            await db.additional_cost_breakup_freigth.create(
-              {
-                quo_id: lastInsertedId,
-                quo_num: quotation_series,
-                freight_charge_for: item.freight_charge_for,
-                input_wt: item.input_wt,
-                rate: item.rate,
-                total_freigth: item.total_freight,
-                for_delivery_term: delivery_terms,
-                shipment_type: shipment_type,
-                charges_by: "Supplier",
-                heading: "Freigth Charges",
-                status: 1,
-              },
-              { transaction }
-            );
-          })
-        );
-      }
-    }
-
-    const promises = payment_milestone.map(async (i) => {
+    const promises = payment_milestone?.map(async (i) => {
       await db.payment_milestone.create(
         {
           quo_id: lastInsertedId,
@@ -782,10 +686,9 @@ const createQuotation = async (req, res, next) => {
       );
     });
 
-    await Promise.all(promises);
 
     // Prepare and insert quotation items
-    console.dir(ItemData, { depth: null });
+
     const updatedItemdata = ItemData?.filter(
       (item) => item.item_code !== ""
     )?.map((item) => ({
@@ -815,7 +718,6 @@ const createQuotation = async (req, res, next) => {
 
     await quotation_items.bulkCreate(updatedItemdata, { transaction });
 
-    // console.log("quotation_docslist", quotation_docslist);
     // Transform and insert quotation documents
     const updatedQuotationDocs = quotation_docslist.map((data, index) => ({
       ...data,
@@ -832,6 +734,49 @@ const createQuotation = async (req, res, next) => {
       doc_remarks: data.remark,
       isAvailable: data.available,
     }));
+
+    if ([charges] && [charges]?.length > 0) {
+      await Promise.all(
+        [charges].map(async (item) => {
+          await db.transportation_charges_lpr.create(
+            {
+              delivery_term: delivery_terms,
+              quotation_id: lastInsertedId,
+              quotation_number: quotation_series,
+              no_of_truck: item.no_of_truck,
+              truck_type: item.amount,
+              transportation_rate: item.transportation_rate,
+              transportation_amt: item.transportation_amt,
+              vat: item.vat,
+              total_amt_incl_vat: item.total_freight_charges,
+              status: 1,
+            },
+            { transaction } // Pass the transaction object
+          );
+        })
+      );
+    }
+
+    if (additional_charges && additional_charges?.length > 0) {
+      await Promise.all(
+        additional_charges.map(async (item) => {
+          await db.additional_charges_lpr.create(
+            {
+              delivery_term: delivery_terms,
+              quotation_id: lastInsertedId,
+              quotation_number: quotation_series,
+              headOfExpense: item.headOfExpense,
+              amount: item.amount,
+              vat: item.vat,
+              amtInclVat: item.amtInclVat,
+              roundOff: item.roundOff,
+              status: 1,
+            },
+            { transaction } // Pass the transaction object
+          );
+        })
+      );
+    }
 
     await db.quo_require_docs.bulkCreate(RequireQuotationDocs, { transaction });
 

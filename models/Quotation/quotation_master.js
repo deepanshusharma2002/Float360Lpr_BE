@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(55),
         allowNull: true,
       },
+      address: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
       reference_date: {
         type: DataTypes.DATEONLY,
         allowNull: true,
