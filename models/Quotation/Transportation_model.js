@@ -1,6 +1,6 @@
   module.exports = (sequelize, DataTypes) => {
-    const transportationCharges = sequelize.define(
-      "transportation_charges",
+    const transportationChargesLpr = sequelize.define(
+      "transportation_charges_lpr",
       {
         transportation_charges_id: {
           type: DataTypes.INTEGER,
@@ -10,55 +10,55 @@
         },
         reference_id: {
           type: DataTypes.INTEGER,
-          allowNull: false,
+          allowNull: true,
         },
         reference_type: {
           type: DataTypes.STRING(50),
-          allowNull: false,
+          allowNull: true,
         },
         reference_tableName: {
           type: DataTypes.STRING(100),
-          allowNull: false,
+          allowNull: true,
         },
         charged_by: {
           type: DataTypes.STRING(55),
-          allowNull: false,
+          allowNull: true,
         },
         delivery_term: {
           type: DataTypes.STRING(100),
-          allowNull: false,
+          allowNull: true,
         },
         quotation_id: {
           type: DataTypes.INTEGER,
-          allowNull: false,
+          allowNull: true,
         },
         quotation_number: {
           type: DataTypes.STRING(50),
-          allowNull: false,
+          allowNull: true,
         },
         no_of_truck: {
           type: DataTypes.INTEGER,
-          allowNull: false,
+          allowNull: true,
         },
         truck_type: {
           type: DataTypes.STRING(50),
-          allowNull: false,
+          allowNull: true,
         },
         transportation_rate: {
           type: DataTypes.DECIMAL(10, 2),
-          allowNull: false,
+          allowNull: true,
         },
         transportation_amt: {
           type: DataTypes.DECIMAL(10, 2),
-          allowNull: false,
+          allowNull: true,
         },
         vat: {
           type: DataTypes.DECIMAL(10, 2),
-          allowNull: false,
+          allowNull: true,
         },
         total_amt_incl_vat: {
           type: DataTypes.DECIMAL(10, 2),
-          allowNull: false,
+          allowNull: true,
         },
         created_by: {
           type: DataTypes.STRING(55),
@@ -70,10 +70,16 @@
         },
       },
       {
-        tableName: "transportation_charges",
+        tableName: "transportation_charges_lpr",
         timestamps: true,
       }
     );
+    transportationChargesLpr.associate = (models) => {
+      transportationChargesLpr.belongsTo(models.quotation_master, {
+        foreignKey: "quotation_id",
+      });
+    };
   
-    return transportationCharges;
+  
+    return transportationChargesLpr;
 };
