@@ -19,12 +19,508 @@ const { generateSeries } = require("./seriesGenerate");
 const { sequelize, po_items } = require("../models/index");
 const { Op, where, col } = require("sequelize");
 
+// const getQuotation = async (req, res, next) => {
+//   const quo_id = req.query.quo_id;
+//   const company_id = req.query.company_id;
+//   const opr_id = req.query.opr_id;
+//   const rfq_id = req.query.rfq_id;
+//   console.log(company_id, opr_id);
+//   try {
+//     if (quo_id) {
+//       let quo_details = await quotation_master.findAll({
+//         order: [["quo_id", "DESC"]],
+//         where: {
+//           quo_id: quo_id,
+//         },
+//         attributes: [
+//           "quo_id",
+//           "quo_num",
+//           "rfq_id",
+//           "vendor_id",
+//           "reference_no",
+//           "reference_date",
+//           "quo_date",
+//           "currency",
+//           "delivery_terms",
+//           "vendor_reference_no",
+//           "country_origin",
+//           "country_supply",
+//           "port_loading",
+//           "lead_time",
+//           "payment_terms",
+//           "remarks",
+//           "approval_status",
+//           "total_cost",
+//           "po_status",
+//           "opo_status",
+//           "quote_doc",
+//           "quote_doc_name",
+//           "opr_lead_time",
+//           "port_of_loading",
+//           "procurement_by",
+//           "procurement_justification",
+//           "quo_valid_till",
+//           "lead_initiation_point",
+//           [
+//             sequelize.literal("dbo.fn_GetDeliveryTerm(delivery_terms)"),
+//             "delivery_terms_name",
+//           ],
+//         ],
+//         include: [
+//           { model: db.payment_milestone },
+//           {
+//             model: db.rfq,
+//             include: [
+//               { model: db.CompanyMaster, attributes: ["company_name"] },
+//             ],
+//           },
+//           { model: db.additional_cost_breakup_freigth },
+//           { model: db.additional_cost_freigth },
+//           { model: db.quo_require_docs },
+//           {
+//             model: db.additional_cost,
+//             // attributes: [
+//             //   "charge_name",
+//             //   "charge_amount",
+//             //   "heading",
+//             //   "for_delivery_term",
+//             // ],
+//           },
+//           {
+//             model: db.QuoDoc,
+//             attributes: [
+//               "q_doc_id",
+//               "quotation_id",
+//               "q_doc_name",
+//               "q_doc_remarks",
+//               "q_doc_filename",
+//               // "q_doc_file",
+//             ],
+//           },
+//           {
+//             model: db.vendor,
+//             attributes: ["vendor_name", "vendor_series"],
+//           },
+//           {
+//             model: db.quotation_items,
+//             include: [{ model: db.RfqItemDetail, include: [db.OprItems] }],
+//             attributes: [
+//               "quo_item_id",
+//               "quo_id",
+//               "item_id",
+//               "item_type",
+//               "line_total",
+//               "opr_qty",
+//               "quote_qtd",
+//               "rate",
+//               "remarks",
+//               "item_name",
+//               "no_packs",
+//               "pack_size",
+//               "pack_type",
+//               "quo_num",
+//               "item_code",
+//               "rfq_item_id",
+//               "item_name_vendor",
+//               "item_name_label",
+//               "uom_name",
+//               "cria_required",
+//               [
+//                 sequelize.literal("dbo.fn_GetPackageType(pack_type)"),
+//                 "pack_type_name",
+//               ],
+//             ],
+//           },
+          
+//         ],
+//       });
+//       res.status(200).json(quo_details);
+//     } else if (company_id && opr_id) {
+//       console.log("sghg");
+//       const oprItems = await OprItems.findAll({
+//         where: {
+//           company_id: company_id,
+//           opr_id: opr_id,
+//         },
+//         attributes: ["item_id"],
+//       });
+//       console.log("sghg", oprItems);
+
+//       // Extract item_ids from the retrieved OprItems
+//       const item_ids = oprItems.map((item) => item.item_id);
+
+//       let opr_details = await OprItems.findAll({
+//         where: {
+//           company_id: company_id,
+//           opr_id: opr_id,
+//         },
+//         include: [
+//           {
+//             model: db.rfq,
+//             include: [
+//               { model: db.CompanyMaster, attributes: ["company_name"] },
+//               {
+//                 model: db.quotation_master,
+//                 attributes: [
+//                   "quo_id",
+//                   "quo_num",
+//                   "rfq_id",
+//                   "vendor_id",
+//                   "reference_no",
+//                   "reference_date",
+//                   "vendor_reference_no",
+//                   "quo_date",
+//                   "currency",
+//                   "delivery_terms",
+//                   "country_origin",
+//                   "country_supply",
+//                   "port_loading",
+//                   "lead_time",
+//                   "payment_terms",
+//                   "remarks",
+//                   "approval_status",
+//                   "total_cost",
+//                   "po_status",
+//                   "opo_status",
+//                   "quote_doc",
+//                   "quote_doc_name",
+//                   "opr_lead_time",
+//                   "port_of_loading",
+//                   "status",
+//                   "procurement_by",
+//                   "procurement_justification",
+//                   "quo_valid_till",
+//                   "lead_initiation_point",
+//                   [
+//                     sequelize.literal("dbo.fn_GetDeliveryTerm(delivery_terms)"),
+//                     "delivery_terms_name",
+//                   ],
+//                 ],
+//                 include: [
+//                   { model: db.additional_cost_breakup_freigth },
+//                   { model: db.additional_cost_freigth },
+//                   {
+//                     model: db.additional_cost,
+//                     // attributes: [
+//                     //   "charge_name",
+//                     //   "charge_amount",
+//                     //   "heading",
+//                     //   "charges_by",
+//                     //   "for_delivery_term",
+//                     // ],
+//                   },
+//                   {
+//                     model: db.vendor,
+//                     attributes: ["vendor_name", "vendor_series"],
+//                   },
+//                   {
+//                     model: db.quotation_items,
+//                     include: [
+//                       { model: db.RfqItemDetail, include: [db.OprItems] },
+//                     ],
+//                     attributes: [
+//                       "quo_item_id",
+//                       "quo_id",
+//                       "item_id",
+//                       "item_type",
+//                       "line_total",
+//                       "opr_qty",
+//                       "quote_qtd",
+//                       "rate",
+//                       "remarks",
+//                       "item_name",
+//                       "no_packs",
+//                       "pack_size",
+//                       "pack_type",
+//                       "quo_num",
+//                       "item_code",
+//                       "rfq_item_id",
+//                       "item_name_vendor",
+//                       "item_name_label",
+//                       "uom_name",
+//                       "cria_required",
+//                       [
+//                         sequelize.literal("dbo.fn_GetPackageType(pack_type)"),
+//                         "pack_type_name",
+//                       ],
+//                     ],
+//                     where: {
+//                       item_id: item_ids, // Filter using the item_id directly
+//                     },
+//                   },
+//                   {
+//                     model: db.QuoDoc,
+//                     attributes: [
+//                       "q_doc_id",
+//                       "quotation_id",
+//                       "q_doc_name",
+//                       "q_doc_remarks",
+//                       "q_doc_filename",
+//                       "q_doc_file",
+//                     ],
+//                   },
+                  
+//                 ],
+//               },
+//             ],
+//           },
+//         ],
+//       });
+//       res.status(200).json(opr_details);
+//     } else if (rfq_id) {
+//       let quo_details = await quotation_master.findAll({
+//         where: {
+//           rfq_id: rfq_id,
+//         },
+//         attributes: [
+//           "quo_id",
+//           "quo_num",
+//           "rfq_id",
+//           "vendor_id",
+//           "reference_no",
+//           "vendor_reference_no",
+//           "reference_date",
+//           "quo_date",
+//           "currency",
+//           "delivery_terms",
+//           "country_origin",
+//           "country_supply",
+//           "port_loading",
+//           "lead_time",
+//           "payment_terms",
+//           "remarks",
+//           "approval_status",
+//           "total_cost",
+//           "po_status",
+//           "opo_status",
+//           "quote_doc",
+//           "quote_doc_name",
+//           "opr_lead_time",
+//           "port_of_loading",
+//           "procurement_by",
+//           "procurement_justification",
+//           "unit_justification",
+//           "quo_valid_till",
+//           "lead_initiation_point",
+//           "status",
+//           [
+//             sequelize.literal("dbo.fn_GetDeliveryTerm(delivery_terms)"),
+//             "delivery_terms_name",
+//           ],
+//         ],
+//         include: [
+//           {
+//             model: db.rfq,
+//             include: [
+//               { model: db.CompanyMaster, attributes: ["company_name"] },
+//             ],
+//             attributes: {
+//               include: [
+//                 [
+//                   sequelize.literal(
+//                     "dbo.fn_GetPortDestinationName(port_of_destination)"
+//                   ),
+//                   "port_of_destination_name",
+//                 ],
+//                 [
+//                   sequelize.literal("dbo.GetNamesFromIds(vendor_list)"),
+//                   "vendors",
+//                 ],
+//               ],
+//             },
+//           },
+//           { model: db.additional_cost_breakup_freigth },
+//           { model: db.additional_cost_freigth },
+//           {
+//             model: db.payment_milestone,
+//             attributes: ["quo_id", "milestone", "percentage", "status"],
+//           },
+//           {
+//             model: db.additional_cost,
+//             // attributes: [
+//             //   "charge_name",
+//             //   "charge_amount",
+//             //   "heading",
+//             //   "for_delivery_term",
+//             // ],
+//           },
+//           {
+//             model: db.vendor,
+//             attributes: ["vendor_name", "vendor_series"],
+//           },
+//           {
+//             model: db.quotation_items,
+//             include: [
+//               { model: db.RfqItemDetail, include: [db.OprItems] },
+//               {
+//                 model: db.ItemsMaster,
+//                 attributes: { exclude: ["item_img", "item_img_name"] },
+//               },
+//             ],
+//             attributes: [
+//               "quo_item_id",
+//               "quo_id",
+//               "item_id",
+//               "item_type",
+//               "line_total",
+//               "opr_qty",
+//               "quote_qtd",
+//               "rate",
+//               "remarks",
+//               "item_name",
+//               "no_packs",
+//               "pack_size",
+//               "pack_type",
+//               "quo_num",
+//               "item_code",
+//               "rfq_item_id",
+//               "item_name_vendor",
+//               "item_name_label",
+//               "uom_name",
+//               "cria_required",
+//               [
+//                 sequelize.literal("dbo.fn_GetPackageType(pack_type)"),
+//                 "pack_type_name",
+//               ],
+//             ],
+//           },
+//           {
+//             model: db.QuoDoc,
+//             attributes: [
+//               "q_doc_id",
+//               "quotation_id",
+//               "q_doc_name",
+//               "q_doc_remarks",
+//               "q_doc_filename",
+//               // "q_doc_file",
+//             ],
+//           },
+          
+//         ],
+//       });
+//       res.status(200).json(quo_details);
+//     } else {
+//       console.log("check");
+//       let quo_details = await quotation_master.findAll({
+//         order: [["quo_id", "DESC"]],
+//         attributes: [
+//           "quo_id",
+//           "quo_num",
+//           "rfq_id",
+//           "vendor_id",
+//           "reference_no",
+//           "reference_date",
+//           "vendor_reference_no",
+//           "quo_date",
+//           "currency",
+//           "delivery_terms",
+//           "country_origin",
+//           "country_supply",
+//           "port_loading",
+//           "lead_time",
+//           "payment_terms",
+//           "remarks",
+//           "approval_status",
+//           "total_cost",
+//           "po_status",
+//           "opo_status",
+//           "quote_doc",
+//           "quote_doc_name",
+//           "opr_lead_time",
+//           "port_of_loading",
+//           "procurement_by",
+//           "procurement_justification",
+//           "quo_valid_till",
+//           "lead_initiation_point",
+//           [
+//             sequelize.literal("dbo.fn_GetDeliveryTerm(delivery_terms)"),
+//             "delivery_terms_name",
+//           ],
+//         ],
+//         include: [
+//           { model: db.payment_milestone },
+//           {
+//             model: db.rfq,
+//             include: [
+//               { model: db.CompanyMaster, attributes: ["company_name"] },
+//             ],
+//           },
+//           { model: db.additional_cost_breakup_freigth },
+//           { model: db.additional_cost_freigth },
+//           { model: db.quo_require_docs },
+//           {
+//             model: db.additional_cost,
+//             // attributes: [
+//             //   "charge_name",
+//             //   "charge_amount",
+//             //   "heading",
+//             //   "for_delivery_term",
+//             // ],
+//           },
+//           {
+//             model: db.QuoDoc,
+//             attributes: [
+//               "q_doc_id",
+//               "quotation_id",
+//               "q_doc_name",
+//               "q_doc_remarks",
+//               "q_doc_filename",
+//               // "q_doc_file",
+//             ],
+//           },
+//           {
+//             model: db.vendor,
+//             attributes: ["vendor_name", "vendor_series"],
+//           },
+//           {
+//             model: db.quotation_items,
+//             include: [{ model: db.RfqItemDetail, include: [db.OprItems] }],
+//             attributes: [
+//               "quo_item_id",
+//               "quo_id",
+//               "item_id",
+//               "item_type",
+//               "line_total",
+//               "opr_qty",
+//               "quote_qtd",
+//               "rate",
+//               "remarks",
+//               "item_name",
+//               "no_packs",
+//               "pack_size",
+//               "pack_type",
+//               "quo_num",
+//               "item_code",
+//               "rfq_item_id",
+//               "item_name_vendor",
+//               "item_name_label",
+//               "uom_name",
+//               "cria_required",
+//               [
+//                 sequelize.literal("dbo.fn_GetPackageType(pack_type)"),
+//                 "pack_type_name",
+//               ],
+//             ],
+//           },
+        
+//         ],
+//       });
+//       res.status(200).json(quo_details);
+//     }
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+
+
 const getQuotation = async (req, res, next) => {
   const quo_id = req.query.quo_id;
   const company_id = req.query.company_id;
   const opr_id = req.query.opr_id;
   const rfq_id = req.query.rfq_id;
   console.log(company_id, opr_id);
+
   try {
     if (quo_id) {
       let quo_details = await quotation_master.findAll({
@@ -79,12 +575,6 @@ const getQuotation = async (req, res, next) => {
           { model: db.quo_require_docs },
           {
             model: db.additional_cost,
-            // attributes: [
-            //   "charge_name",
-            //   "charge_amount",
-            //   "heading",
-            //   "for_delivery_term",
-            // ],
           },
           {
             model: db.QuoDoc,
@@ -94,7 +584,6 @@ const getQuotation = async (req, res, next) => {
               "q_doc_name",
               "q_doc_remarks",
               "q_doc_filename",
-              // "q_doc_file",
             ],
           },
           {
@@ -129,6 +618,48 @@ const getQuotation = async (req, res, next) => {
                 sequelize.literal("dbo.fn_GetPackageType(pack_type)"),
                 "pack_type_name",
               ],
+            ],
+          },
+          // Include additional_charges_lpr and transportation_charges_lpr
+          {
+            model: db.additional_charges_lpr,
+            attributes: [
+              "additional_charges_id",
+              "reference_id",
+              "reference_type",
+              "reference_tableName",
+              "charged_by",
+              "delivery_term",
+              "quotation_id",
+              "quotation_number",
+              "headOfExpense",
+              "amount",
+              "vat",
+              "amtInclVat",
+              "roundOff",
+              "created_by",
+              "updated_by",
+            ],
+          },
+          {
+            model: db.transportation_charges_lpr,
+            attributes: [
+              "transportation_charges_id",
+              "reference_id",
+              "reference_type",
+              "reference_tableName",
+              "charged_by",
+              "delivery_term",
+              "quotation_id",
+              "quotation_number",
+              "no_of_truck",
+              "truck_type",
+              "transportation_rate",
+              "transportation_amt",
+              "vat",
+              "total_amt_incl_vat",
+              "created_by",
+              "updated_by",
             ],
           },
         ],
@@ -200,13 +731,6 @@ const getQuotation = async (req, res, next) => {
                   { model: db.additional_cost_freigth },
                   {
                     model: db.additional_cost,
-                    // attributes: [
-                    //   "charge_name",
-                    //   "charge_amount",
-                    //   "heading",
-                    //   "charges_by",
-                    //   "for_delivery_term",
-                    // ],
                   },
                   {
                     model: db.vendor,
@@ -256,6 +780,48 @@ const getQuotation = async (req, res, next) => {
                       "q_doc_remarks",
                       "q_doc_filename",
                       "q_doc_file",
+                    ],
+                  },
+                  // Include additional_charges_lpr and transportation_charges_lpr
+                  {
+                    model: db.additional_charges_lpr,
+                    attributes: [
+                      "additional_charges_id",
+                      "reference_id",
+                      "reference_type",
+                      "reference_tableName",
+                      "charged_by",
+                      "delivery_term",
+                      "quotation_id",
+                      "quotation_number",
+                      "headOfExpense",
+                      "amount",
+                      "vat",
+                      "amtInclVat",
+                      "roundOff",
+                      "created_by",
+                      "updated_by",
+                    ],
+                  },
+                  {
+                    model: db.transportation_charges_lpr,
+                    attributes: [
+                      "transportation_charges_id",
+                      "reference_id",
+                      "reference_type",
+                      "reference_tableName",
+                      "charged_by",
+                      "delivery_term",
+                      "quotation_id",
+                      "quotation_number",
+                      "no_of_truck",
+                      "truck_type",
+                      "transportation_rate",
+                      "transportation_amt",
+                      "vat",
+                      "total_amt_incl_vat",
+                      "created_by",
+                      "updated_by",
                     ],
                   },
                 ],
@@ -335,12 +901,6 @@ const getQuotation = async (req, res, next) => {
           },
           {
             model: db.additional_cost,
-            // attributes: [
-            //   "charge_name",
-            //   "charge_amount",
-            //   "heading",
-            //   "for_delivery_term",
-            // ],
           },
           {
             model: db.vendor,
@@ -390,7 +950,48 @@ const getQuotation = async (req, res, next) => {
               "q_doc_name",
               "q_doc_remarks",
               "q_doc_filename",
-              // "q_doc_file",
+            ],
+          },
+          // Include additional_charges_lpr and transportation_charges_lpr
+          {
+            model: db.additional_charges_lpr,
+            attributes: [
+              "additional_charges_id",
+              "reference_id",
+              "reference_type",
+              "reference_tableName",
+              "charged_by",
+              "delivery_term",
+              "quotation_id",
+              "quotation_number",
+              "headOfExpense",
+              "amount",
+              "vat",
+              "amtInclVat",
+              "roundOff",
+              "created_by",
+              "updated_by",
+            ],
+          },
+          {
+            model: db.transportation_charges_lpr,
+            attributes: [
+              "transportation_charges_id",
+              "reference_id",
+              "reference_type",
+              "reference_tableName",
+              "charged_by",
+              "delivery_term",
+              "quotation_id",
+              "quotation_number",
+              "no_of_truck",
+              "truck_type",
+              "transportation_rate",
+              "transportation_amt",
+              "vat",
+              "total_amt_incl_vat",
+              "created_by",
+              "updated_by",
             ],
           },
         ],
@@ -447,12 +1048,6 @@ const getQuotation = async (req, res, next) => {
           { model: db.quo_require_docs },
           {
             model: db.additional_cost,
-            // attributes: [
-            //   "charge_name",
-            //   "charge_amount",
-            //   "heading",
-            //   "for_delivery_term",
-            // ],
           },
           {
             model: db.QuoDoc,
@@ -462,7 +1057,6 @@ const getQuotation = async (req, res, next) => {
               "q_doc_name",
               "q_doc_remarks",
               "q_doc_filename",
-              // "q_doc_file",
             ],
           },
           {
@@ -499,6 +1093,48 @@ const getQuotation = async (req, res, next) => {
               ],
             ],
           },
+          // Include additional_charges_lpr and transportation_charges_lpr
+          {
+            model: db.additional_charges_lpr,
+            attributes: [
+              "additional_charges_id",
+              "reference_id",
+              "reference_type",
+              "reference_tableName",
+              "charged_by",
+              "delivery_term",
+              "quotation_id",
+              "quotation_number",
+              "headOfExpense",
+              "amount",
+              "vat",
+              "amtInclVat",
+              "roundOff",
+              "created_by",
+              "updated_by",
+            ],
+          },
+          {
+            model: db.transportation_charges_lpr,
+            attributes: [
+              "transportation_charges_id",
+              "reference_id",
+              "reference_type",
+              "reference_tableName",
+              "charged_by",
+              "delivery_term",
+              "quotation_id",
+              "quotation_number",
+              "no_of_truck",
+              "truck_type",
+              "transportation_rate",
+              "transportation_amt",
+              "vat",
+              "total_amt_incl_vat",
+              "created_by",
+              "updated_by",
+            ],
+          },
         ],
       });
       res.status(200).json(quo_details);
@@ -507,6 +1143,9 @@ const getQuotation = async (req, res, next) => {
     next(error);
   }
 };
+
+
+
 
 // quotation by rfq it with items
 const getQuotationbyrfqId = async (req, res, next) => {
@@ -608,9 +1247,200 @@ const deleteQuotationById = async (req, res, next) => {
 };
 
 // Controller method to Create
+// const createQuotation = async (req, res, next) => {
+//   console.dir(req.body, { depth: null });
+//   console.log(req.files);
+//   const {
+//     rfq_id,
+//     vendor_id,
+//     reference_no,
+//     vendor_reference_no,
+//     reference_date,
+//     quo_date,
+//     currency,
+//     delivery_terms,
+//     lead_time,
+//     lead_initiation_point,
+//     payment_terms,
+//     remarks,
+//     quote_valid_till,
+//     address,
+//     total_cost,
+//     opr_lead_time,
+
+//     payment_milestone,
+//     additional_charges,
+//     charges,
+//     ReuireDocData,
+//     ItemData,
+//     quotation_docslist,
+//   } = req.body.quotation_details;
+
+//   const transaction = await sequelize.transaction(); // Start a transaction
+
+//   try {
+//     const doc_code = "QUO";
+//     const quotation_series = await generateSeries(doc_code);
+
+//     // Generate quotation
+//     const newQuotationMaster = await quotation_master.create(
+//       {
+//         quo_num: quotation_series,
+//         rfq_id,
+//         vendor_id,
+//         reference_no,
+//         reference_date,
+//         quo_date,
+//         lead_initiation_point,
+//         vendor_reference_no,
+//         currency,
+//         delivery_terms,
+//         quo_valid_till: quote_valid_till,
+//         lead_time: `${lead_time} Days`,
+//         payment_terms,
+//         remarks,
+//         total_cost,
+//         address,
+//         opr_lead_time,
+//         status: 1,
+//       }
+//       // { transaction }
+//     );
+
+//     const lastInsertedId = newQuotationMaster.quo_id;
+
+//     const promises = payment_milestone?.map(async (i) => {
+//       await db.payment_milestone.create(
+//         {
+//           quo_id: lastInsertedId,
+//           quo_num: quotation_series,
+//           vendor_id: vendor_id,
+//           initiated_point: i.initiated_point,
+//           milestone: i.milestone,
+//           percentage: i.percentage_value,
+//           payment_status: 0,
+//           status: 1,
+//         },
+//         { transaction }
+//       );
+//     });
+
+
+//     // Prepare and insert quotation items
+
+//     const updatedItemdata = ItemData?.filter(
+//       (item) => item.item_code !== ""
+//     )?.map((item) => ({
+//       quo_id: lastInsertedId,
+//       quo_num: quotation_series,
+//       rfq_id: rfq_id,
+//       vendor_id: vendor_id,
+//       cria_required: item?.cria_req,
+//       rfq_item_id: item.rfq_item_id,
+//       item_type: item.item_type,
+//       item_code: item.item_code,
+//       item_id: item.item_id,
+//       item_name: item.item_name,
+//       opr_qty: item.opr_qty,
+//       item_name_vendor: item.item_name_vendor,
+//       item_name_label: item.item_name_label,
+//       quote_qtd: item.quote_qtd,
+//       uom_name: item.uom,
+//       rate: item.rate,
+//       remarks: item.remarks,
+//       line_total: item.line_total,
+//       pack_type: item.pack_type,
+//       pack_size: item.pack_size,
+//       no_packs: item.no_packs,
+//       status: 1,
+//     }));
+
+//     await quotation_items.bulkCreate(updatedItemdata, { transaction });
+
+//     // Transform and insert quotation documents
+//     const updatedQuotationDocs = quotation_docslist.map((data, index) => ({
+//       ...data,
+//       quotation_id: lastInsertedId,
+//       q_doc_filename: req.files[index]?.originalname,
+//       q_doc_file: req.files[index]?.buffer.toString("base64"),
+//     }));
+
+//     await QuoDoc.bulkCreate(updatedQuotationDocs, { transaction });
+
+//     const RequireQuotationDocs = ReuireDocData.map((data, index) => ({
+//       quo_id: lastInsertedId,
+//       doc_name: data.name,
+//       doc_remarks: data.remark,
+//       isAvailable: data.available,
+//     }));
+
+//     if ([charges] && [charges]?.length > 0) {
+//       await Promise.all(
+//         [charges].map(async (item) => {
+//           await db.transportation_charges_lpr.create(
+//             {
+//               delivery_term: delivery_terms,
+//               quotation_id: lastInsertedId,
+//               quotation_number: quotation_series,
+//               no_of_truck: item.no_of_truck,
+//               truck_type: item.amount,
+//               transportation_rate: item.transportation_rate,
+//               transportation_amt: item.transportation_amt,
+//               vat: item.vat,
+//               total_amt_incl_vat: item.total_freight_charges,
+//               status: 1,
+//             },
+//             { transaction } // Pass the transaction object
+//           );
+//         })
+//       );
+//     }
+
+//     if (additional_charges && additional_charges?.length > 0) {
+//       await Promise.all(
+//         additional_charges.map(async (item) => {
+//           await db.additional_charges_lpr.create(
+//             {
+//               delivery_term: delivery_terms,
+//               quotation_id: lastInsertedId,
+//               quotation_number: quotation_series,
+//               headOfExpense: item.headOfExpense,
+//               amount: item.amount,
+//               vat: item.vat,
+//               amtInclVat: item.amtInclVat,
+//               roundOff: item.roundOff,
+//               status: 1,
+//             },
+//             { transaction } // Pass the transaction object
+//           );
+//         })
+//       );
+//     }
+
+//     await db.quo_require_docs.bulkCreate(RequireQuotationDocs, { transaction });
+
+//     await transaction.commit(); // Commit the transaction
+
+//     res.status(200).json({ message: "Quotation generated successfully" });
+//   } catch (err) {
+//     await transaction.rollback(); // Rollback the transaction in case of error
+//     console.error("Error creating quotation:", err); // More specific logging
+//     next(err);
+//   }
+// };
+
+
 const createQuotation = async (req, res, next) => {
   console.dir(req.body, { depth: null });
   console.log(req.files);
+
+
+  // Parse quotation_details from JSON string to object
+  const quotationDetails = JSON.parse(req.body.quotation_details);
+
+  // Parse quotation_docslist from JSON string to object
+  const quotationDocsList = JSON.parse(req.body.quotation_docslist);
+
   const {
     rfq_id,
     vendor_id,
@@ -628,22 +1458,28 @@ const createQuotation = async (req, res, next) => {
     address,
     total_cost,
     opr_lead_time,
-
-    payment_milestone,
     additional_charges,
     charges,
     ReuireDocData,
     ItemData,
-    quotation_docslist,
-  } = req.body.quotation_details;
+  } = quotationDetails;
 
   const transaction = await sequelize.transaction(); // Start a transaction
 
   try {
+    console.log("Payment Milestones:", req.body.payment_milestone);
+    console.log("Additional Charges:", req.body.additional_charges);
+    console.log("Transportation Charges:", req.body.charges);
+    // Validate required fields
+    if (!rfq_id || !vendor_id || !reference_no || !quote_valid_till) {
+      throw new Error("Missing required fields in payload");
+    }
+
+    // Generate quotation series
     const doc_code = "QUO";
     const quotation_series = await generateSeries(doc_code);
 
-    // Generate quotation
+    // Create quotation master record
     const newQuotationMaster = await quotation_master.create(
       {
         quo_num: quotation_series,
@@ -664,34 +1500,14 @@ const createQuotation = async (req, res, next) => {
         address,
         opr_lead_time,
         status: 1,
-      }
-      // { transaction }
+      },
+      { transaction }
     );
 
     const lastInsertedId = newQuotationMaster.quo_id;
 
-    const promises = payment_milestone?.map(async (i) => {
-      await db.payment_milestone.create(
-        {
-          quo_id: lastInsertedId,
-          quo_num: quotation_series,
-          vendor_id: vendor_id,
-          initiated_point: i.initiated_point,
-          milestone: i.milestone,
-          percentage: i.percentage_value,
-          payment_status: 0,
-          status: 1,
-        },
-        { transaction }
-      );
-    });
-
-
-    // Prepare and insert quotation items
-
-    const updatedItemdata = ItemData?.filter(
-      (item) => item.item_code !== ""
-    )?.map((item) => ({
+    // Insert quotation items
+    const updatedItemdata = ItemData?.filter((item) => item.item_code !== "")?.map((item) => ({
       quo_id: lastInsertedId,
       quo_num: quotation_series,
       rfq_id: rfq_id,
@@ -718,8 +1534,8 @@ const createQuotation = async (req, res, next) => {
 
     await quotation_items.bulkCreate(updatedItemdata, { transaction });
 
-    // Transform and insert quotation documents
-    const updatedQuotationDocs = quotation_docslist.map((data, index) => ({
+    // Insert quotation documents
+    const updatedQuotationDocs = quotationDocsList.map((data, index) => ({
       ...data,
       quotation_id: lastInsertedId,
       q_doc_filename: req.files[index]?.originalname,
@@ -728,36 +1544,40 @@ const createQuotation = async (req, res, next) => {
 
     await QuoDoc.bulkCreate(updatedQuotationDocs, { transaction });
 
-    const RequireQuotationDocs = ReuireDocData.map((data, index) => ({
+    // Insert required documents
+    const RequireQuotationDocs = ReuireDocData.map((data) => ({
       quo_id: lastInsertedId,
       doc_name: data.name,
       doc_remarks: data.remark,
       isAvailable: data.available,
     }));
 
-    if ([charges] && [charges]?.length > 0) {
-      await Promise.all(
-        [charges].map(async (item) => {
-          await db.transportation_charges_lpr.create(
-            {
-              delivery_term: delivery_terms,
-              quotation_id: lastInsertedId,
-              quotation_number: quotation_series,
-              no_of_truck: item.no_of_truck,
-              truck_type: item.amount,
-              transportation_rate: item.transportation_rate,
-              transportation_amt: item.transportation_amt,
-              vat: item.vat,
-              total_amt_incl_vat: item.total_freight_charges,
-              status: 1,
-            },
-            { transaction } // Pass the transaction object
-          );
-        })
+    await db.quo_require_docs.bulkCreate(RequireQuotationDocs, { transaction });
+
+    // Insert transportation charges
+    if (charges && Object.keys(charges).length > 0) {
+      await db.transportation_charges_lpr.create(
+        {
+          delivery_term: delivery_terms,
+          quotation_id: lastInsertedId,
+          quotation_number: quotation_series,
+          no_of_truck: charges.no_of_truck,
+          truck_type: charges.truck_type, 
+          transportation_rate: charges.transportation_rate,
+          transportation_amt: charges.transportation_amt,
+          vat: charges.vat,
+          total_amt_incl_vat: charges.total_freight_charges,
+          reference_id: rfq_id, 
+          reference_type: 'rfq', 
+          reference_tableName: 'rfq_master',
+          status: 1,
+        },
+        { transaction }
       );
     }
 
-    if (additional_charges && additional_charges?.length > 0) {
+    // Insert additional charges
+    if (additional_charges && additional_charges.length > 0) {
       await Promise.all(
         additional_charges.map(async (item) => {
           await db.additional_charges_lpr.create(
@@ -770,25 +1590,29 @@ const createQuotation = async (req, res, next) => {
               vat: item.vat,
               amtInclVat: item.amtInclVat,
               roundOff: item.roundOff,
+              reference_id: rfq_id, // Add reference_id
+              reference_type: 'rfq', // Add reference_type
+              reference_tableName: 'rfq_master',
               status: 1,
             },
-            { transaction } // Pass the transaction object
+            { transaction }
           );
         })
       );
     }
 
-    await db.quo_require_docs.bulkCreate(RequireQuotationDocs, { transaction });
-
     await transaction.commit(); // Commit the transaction
-
     res.status(200).json({ message: "Quotation generated successfully" });
   } catch (err) {
     await transaction.rollback(); // Rollback the transaction in case of error
-    console.error("Error creating quotation:", err); // More specific logging
+    console.error("Error creating quotation:", err);
     next(err);
   }
 };
+
+
+
+
 
 const updateQuotationById = async (req, res, next) => {
   const quo_id = req.query.quo_id;
@@ -979,15 +1803,15 @@ const updateAdditionalCost = async (req, res, next) => {
             ].includes(i.name)
               ? "Inland_Charges"
               : [
-                  "bl",
-                  "container_seal",
-                  "container_stuffing",
-                  "thc",
-                  "vgm",
-                  "miscellaneous",
-                ].includes(i.name)
-              ? "FOB"
-              : "Freight_Charges",
+                "bl",
+                "container_seal",
+                "container_stuffing",
+                "thc",
+                "vgm",
+                "miscellaneous",
+              ].includes(i.name)
+                ? "FOB"
+                : "Freight_Charges",
             status: 1,
           });
           return { message: `Added new charge for ${i.name} successfully` };

@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-    const additionalCharges = sequelize.define(
-      "additional_charges",
+    const additionalChargesLpr = sequelize.define(
+      "additional_charges_lpr",
       {
         additional_charges_id: {
           type: DataTypes.INTEGER,
@@ -10,51 +10,51 @@ module.exports = (sequelize, DataTypes) => {
         },
         reference_id: {
           type: DataTypes.INTEGER,
-          allowNull: false,
+          allowNull: true,
         },
         reference_type: {
           type: DataTypes.STRING(50),
-          allowNull: false,
+          allowNull: true,
         },
         reference_tableName: {
           type: DataTypes.STRING(100),
-          allowNull: false,
+          allowNull: true,
         },
         charged_by: {
           type: DataTypes.STRING(55),
-          allowNull: false,
+          allowNull: true,
         },
         delivery_term: {
           type: DataTypes.STRING(100),
-          allowNull: false,
+          allowNull: true,
         },
         quotation_id: {
           type: DataTypes.INTEGER,
-          allowNull: false,
+          allowNull: true,
         },
         quotation_number: {
           type: DataTypes.STRING(50),
-          allowNull: false,
+          allowNull: true,
         },
         headOfExpense: {
           type: DataTypes.STRING(100),
-          allowNull: false,
+          allowNull: true,
         },
         amount: {
           type: DataTypes.DECIMAL(10, 2),
-          allowNull: false,
+          allowNull: true,
         },
         vat: {
           type: DataTypes.DECIMAL(10, 2),
-          allowNull: false,
+          allowNull: true,
         },
         amtInclVat: {
           type: DataTypes.DECIMAL(10, 2),
-          allowNull: false,
+          allowNull: true,
         },
         roundOff: {
           type: DataTypes.DECIMAL(10, 2),
-          allowNull: false,
+          allowNull: true,
         },
         created_by: {
           type: DataTypes.STRING(55),
@@ -66,10 +66,15 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       {
-        tableName: "additional_charges",
+        tableName: "additional_charges_lpr",
         timestamps: true,
       }
     );
+    additionalChargesLpr.associate = (models) => {
+      additionalChargesLpr.belongsTo(models.quotation_master, {
+        foreignKey: "quotation_id",
+      });
+    };
   
-    return additionalCharges;
+    return additionalChargesLpr;
 };
