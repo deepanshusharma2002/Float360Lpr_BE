@@ -180,6 +180,12 @@ module.exports = (sequelize, DataTypes) => {
     quotation_master.belongsTo(models.delivery_terms_quo, {
       foreignKey: "delivery_terms",
     });
+    quotation_master.hasMany(models.additional_charges_lpr, {
+      foreignKey: "quotation_id", // Ensure this matches the foreign key in additional_charges_lpr
+    });
+    quotation_master.hasMany(models.transportation_charges_lpr, {
+      foreignKey: "quotation_id", // Ensure this matches the foreign key in transportation_charges_lpr
+    });
     quotation_master.hasMany(models.quo_require_docs, {
       foreignKey: "quo_id",
     });
