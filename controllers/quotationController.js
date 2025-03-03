@@ -4,20 +4,15 @@ const db = require("../models");
 const {
   quotation_master,
   OprItems,
-  po_master,
   quotation_items,
   QuoDoc,
-  delivery_terms_quo,
-  payment_terms_quo,
-  lead_time_quo,
-  additional_cost,
 } = db;
 const getApprovalData = require("./GlobalFunction/GetApprovalData.js");
 
 const formattedDateTime = require("../middleware/time");
 const { generateSeries } = require("./seriesGenerate");
-const { sequelize, po_items } = require("../models/index");
-const { Op, where, col } = require("sequelize");
+const { sequelize } = require("../models/index");
+const { Op } = require("sequelize");
 
 // const getQuotation = async (req, res, next) => {
 //   const quo_id = req.query.quo_id;
@@ -513,7 +508,6 @@ const { Op, where, col } = require("sequelize");
 // };
 
 
-
 const getQuotation = async (req, res, next) => {
   const quo_id = req.query.quo_id;
   const company_id = req.query.company_id;
@@ -676,7 +670,6 @@ const getQuotation = async (req, res, next) => {
       });
       console.log("sghg", oprItems);
 
-      // Extract item_ids from the retrieved OprItems
       const item_ids = oprItems.map((item) => item.item_id);
 
       let opr_details = await OprItems.findAll({
@@ -1145,8 +1138,6 @@ const getQuotation = async (req, res, next) => {
 };
 
 
-
-
 // quotation by rfq it with items
 const getQuotationbyrfqId = async (req, res, next) => {
   try {
@@ -1467,9 +1458,6 @@ const createQuotation = async (req, res, next) => {
   const transaction = await sequelize.transaction(); // Start a transaction
 
   try {
-    console.log("Payment Milestones:", req.body.payment_milestone);
-    console.log("Additional Charges:", req.body.additional_charges);
-    console.log("Transportation Charges:", req.body.charges);
     // Validate required fields
     if (!rfq_id || !vendor_id || !reference_no || !quote_valid_till) {
       throw new Error("Missing required fields in payload");
