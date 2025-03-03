@@ -4,8 +4,6 @@ const {
   sequelize,
   document: Document,
   QuoDoc,
-  shippment_container_detail,
-  additional_cost_breakup_freigth,
 } = db;
 const { po_master, opo_master, po_items } = db;
 const formattedDateTime = require("../middleware/time");
