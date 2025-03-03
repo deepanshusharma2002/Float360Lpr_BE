@@ -17,11 +17,19 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: true
         },
-        opo_ids: {
+        opr_ids: {
             type: DataTypes.STRING(100),
             allowNull: true
         },
-        opo_nums: {
+        opr_nums: {
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
+        rfq_num: {
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
+        quo_num: {
             type: DataTypes.STRING(100),
             allowNull: true
         },
@@ -58,6 +66,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         },
         acceptance_remarks: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
+        remark: {
             type: DataTypes.STRING(255),
             allowNull: true
         },
@@ -107,18 +119,15 @@ module.exports = (sequelize, DataTypes) => {
         po_master.belongsTo(models.delivery_terms_quo, {
             foreignKey: "delivery_terms",
         });
-        po_master.belongsTo(models.opo_master, {
-            foreignKey: "selected_opo_id",
-        });
-        po_master.hasOne(models.shippment_instructions, {
-            foreignKey: "po_id",
-        });
-        po_master.hasOne(models.shippment_advise_master, {
-            foreignKey: "po_id",
-        });
-        po_master.hasMany(models.add_shippment_container, {
-            foreignKey: "po_id",
-        });
+        // po_master.hasOne(models.shippment_instructions, {
+        //     foreignKey: "po_id",
+        // });
+        // po_master.hasOne(models.shippment_advise_master, {
+        //     foreignKey: "po_id",
+        // });
+        // po_master.hasMany(models.add_shippment_container, {
+        //     foreignKey: "po_id",
+        // });
       }
 
     return po_master;

@@ -1,11 +1,7 @@
 // const { po_master } = ('../models');
 const db = require("../models");
-const {
-  sequelize,
-  document: Document,
-  QuoDoc,
-} = db;
-const { po_master, opo_master, po_items } = db;
+const { sequelize, document: Document, QuoDoc } = db;
+const { po_master, po_items } = db;
 const formattedDateTime = require("../middleware/time");
 const { Op } = require("sequelize");
 const { generateSeries } = require("./seriesGenerate");
@@ -17,189 +13,12 @@ const getPO = async (req, res, next) => {
   const mode = req.query.mode;
   try {
     if (po_id) {
-      console.log("fgjjdvbdfbgf");
       let result = await po_master.findAll({
         where: { po_id },
+        order: [["po_id", "DESC"]],
         attributes: { exclude: ["delivery_terms"] },
         include: [
           {
-            model: db.add_shippment_container,
-            attributes: [
-              "add_shippment_container_id",
-              "po_id",
-              "po_num",
-              "container_no",
-              "container_type",
-              "net_weight",
-              "total_gross_weight",
-              "package_detail",
-              "created_on",
-              "created_by",
-              "updated_on",
-              "updated_by",
-              "status",
-              "soncap_amount",
-              "bl_num",
-              "do_validity_dt",
-              "total_quantity",
-              "total_packages",
-              [
-                db.sequelize.literal("dbo.fn_containerType(container_type)"),
-                "container_size_name",
-              ],
-            ],
-            // include: [
-            //   {
-            //     model: db.shippment_container_detail,
-            //     include: [
-            //       {
-            //         model: db.UomMaster,
-            //         attributes: ["uom_name"],
-            //       },
-            //       {
-            //         model: db.PackageTypeMaster,
-            //         attributes: ["package_type"],
-            //       },
-            //     ],
-            //   },
-            // ],
-          },
-          { model: db.shippment_instructions },
-          {
-            model: db.shippment_advise_master,
-            include: [
-              { model: db.shippment_advise_additional_instruction },
-              { model: db.shipment_advise_items },
-            ],
-          },
-          {
-            model: db.opo_master,
-            include: [
-              {
-                model: db.Pfi_master,
-                include: [
-                  {
-                    model: db.commercial_invoice,
-                    include: [
-                      {
-                        model: db.ci_doc_movement_master,
-                        include: [{ model: db.ci_shipping_doc_movement_dt }],
-                      },
-                      { model: db.custom_clearance },
-                      { model: db.soncap_master },
-                      { model: db.other_govt_charges },
-                      { model: db.nafdac_inspection_expense },
-                      { model: db.assessment },
-                      { model: db.nafdac_clearance },
-                      { model: db.operations_son },
-                      {
-                        model: db.nafdac_penalty,
-                        include: [{ model: db.nafdac_penalty_item }],
-                      },
-                    ],
-                  },
-                  { model: db.Pfi_line_items },
-                  {
-                    model: db.VendorsBanksDetailsMaster,
-                    attributes: {
-                      exclude: ["bank_ref_cheque_name", "bank_ref_cheque"],
-                    },
-                  },
-                  { model: db.insurance },
-                  { model: db.form_m },
-                  { model: db.letter_of_credit },
-                  { model: db.son_pfi },
-                  { model: db.CompanyMaster },
-                  { model: db.operations_nafdac },
-                  {
-                    model: db.paar,
-                    include: [{ model: db.paar_amendment_request }],
-                  },
-                  { model: db.operations_nafdac_master },
-                  { model: db.govt_charges },
-                  { model: db.nafdac_pfi },
-                ],
-              },
-              {
-                model: db.OprMaster,
-                attributes: [
-                  "opr_id",
-                  "opr_num",
-                  "vertical_id",
-                  "company_id",
-                  "opr_date",
-                  "division_id",
-                  "buy_from",
-                  "buying_house_id",
-                  "shipment_mode_id",
-                  "delivery_timeline_id",
-                  "department_id",
-                  "requested_by",
-                  "no_quot_email_alert",
-                  "remarks",
-                  "suppliers",
-                  "item_category_id",
-                  [
-                    db.sequelize.literal(
-                      "dbo.fn_ShipmentModeName(shipment_mode_id)"
-                    ),
-                    "shipment_mode_name",
-                  ],
-                ],
-                include: [
-                  {
-                    model: db.BuyingHouse,
-                    attributes: ["address_line1", "address_line2", "country"],
-                  },
-                  // {
-                  //   model: db.CompanyMaster,
-                  //   include: [{ model: db.AddressMaster }],
-                  // },
-                ],
-              },
-              {
-                model: db.quotation_master,
-                include: [
-                  { model: db.additional_cost_breakup_freigth },
-                  {
-                    model: db.quo_require_docs,
-                    where: {
-                      isAvailable: "true",
-                    },
-                  },
-                  {
-                    model: db.delivery_terms_quo,
-                    attributes: ["delivery_terms_name"],
-                  },
-                  {
-                    model: db.rfq,
-                    attributes: [
-                      "rfq_num",
-                      "remarks",
-                      "vendor_list",
-                      "req_doc_id",
-                      "port_of_destination",
-                      "shipment_type",
-                      "shipment_mode",
-                      "delivery_timeline_in_weeks",
-                      [
-                        db.sequelize.literal(
-                          "dbo.fn_GetPortDestinationName(port_of_destination)"
-                        ),
-                        "port_destination_name",
-                      ],
-                    ],
-                  },
-                  { model: db.additional_cost },
-                  {
-                    model: db.payment_milestone,
-                    attributes: ["milestone", "percentage", "status"],
-                  },
-                ],
-              },
-            ],
-          },
-          {
             model: db.po_items,
             include: [
               {
@@ -262,484 +81,18 @@ const getPO = async (req, res, next) => {
             ],
           },
         ],
-        distinct: true, // Ensure no duplicate results
-      });
-      res.status(200).json(result);
-    } else if (ci_id) {
-      let result = await po_master.findAll({
-        attributes: { exclude: ["delivery_terms"] }, // Exclude only what's unnecessary
-        include: [
-          {
-            model: db.add_shippment_container,
-            attributes: [
-              "add_shippment_container_id",
-              "po_id",
-              "po_num",
-              "container_no",
-              "container_type",
-              "net_weight",
-              "total_gross_weight",
-              "package_detail",
-              "created_on",
-              "created_by",
-              "updated_on",
-              "updated_by",
-              "status",
-              "soncap_amount",
-              "bl_num",
-              "do_validity_dt",
-              "total_quantity",
-              "total_packages",
-              [
-                db.sequelize.literal("dbo.fn_containerType(container_type)"),
-                "container_size_name",
-              ],
-            ],
-            // include: [
-            //   {
-            //     model: db.shippment_container_detail,
-            //     include: [
-            //       {
-            //         model: db.UomMaster,
-            //         attributes: ["uom_name"],
-            //       },
-            //       {
-            //         model: db.PackageTypeMaster,
-            //         attributes: ["package_type"],
-            //       },
-            //     ],
-            //   },
-            // ],
-          },
-          { model: db.shippment_instructions }, // No need to fetch all attributes if not necessary
-          {
-            model: db.shippment_advise_master,
-            include: [
-              { model: db.shippment_advise_additional_instruction },
-              { model: db.shipment_advise_items },
-            ],
-          },
-          {
-            model: db.opo_master,
-            include: [
-              {
-                model: db.Pfi_master,
-                include: [
-                  {
-                    model: db.commercial_invoice,
-                    where: { commercial_invoice_id: ci_id },
-                    include: [
-                      {
-                        model: db.ci_doc_movement_master,
-                        include: [{ model: db.ci_shipping_doc_movement_dt }],
-                      },
-                      { model: db.custom_clearance },
-                      { model: db.soncap_master },
-                      { model: db.other_govt_charges },
-                      { model: db.nafdac_inspection_expense },
-                      { model: db.assessment },
-                      { model: db.nafdac_clearance },
-                      { model: db.operations_son },
-                      {
-                        model: db.nafdac_penalty,
-                        include: [{ model: db.nafdac_penalty_item }],
-                      },
-                    ],
-                  },
-                  { model: db.Pfi_line_items },
-                  {
-                    model: db.VendorsBanksDetailsMaster,
-                    attributes: {
-                      exclude: ["bank_ref_cheque_name", "bank_ref_cheque"],
-                    },
-                  },
-                  { model: db.insurance },
-                  { model: db.form_m },
-                  { model: db.letter_of_credit },
-                  { model: db.son_pfi },
-                  { model: db.CompanyMaster },
-                  { model: db.operations_nafdac },
-                  {
-                    model: db.paar,
-                    include: [{ model: db.paar_amendment_request }],
-                  },
-                  { model: db.operations_nafdac_master },
-                  { model: db.govt_charges },
-                  { model: db.nafdac_pfi },
-                ],
-              },
-              {
-                model: db.OprMaster,
-                attributes: [
-                  "opr_id",
-                  "opr_num",
-                  "vertical_id",
-                  "company_id",
-                  "opr_date",
-                  "division_id",
-                  "buy_from",
-                  "buying_house_id",
-                  "shipment_mode_id",
-                  "delivery_timeline_id",
-                  "department_id",
-                  "requested_by",
-                  "no_quot_email_alert",
-                  "remarks",
-                  "suppliers",
-                  "item_category_id",
-                  [
-                    db.sequelize.literal(
-                      "dbo.fn_ShipmentModeName(shipment_mode_id)"
-                    ),
-                    "shipment_mode_name",
-                  ],
-                ],
-                include: [
-                  {
-                    model: db.BuyingHouse,
-                    attributes: ["address_line1", "address_line2", "country"],
-                  },
-                  // {
-                  //   model: db.CompanyMaster,
-                  //   include: [{ model: db.AddressMaster }],
-                  // },
-                ],
-              },
-
-              {
-                model: db.quotation_master,
-                include: [
-                  { model: db.additional_cost_breakup_freigth },
-                  {
-                    model: db.quo_require_docs,
-                    where: {
-                      isAvailable: "true",
-                    },
-                  },
-                  {
-                    model: db.delivery_terms_quo,
-                    attributes: ["delivery_terms_name"],
-                  },
-                  {
-                    model: db.rfq,
-                    attributes: [
-                      "rfq_num",
-                      "remarks",
-                      "vendor_list",
-                      "req_doc_id",
-                      "port_of_destination",
-                      "shipment_type",
-                      "shipment_mode",
-                      "delivery_timeline_in_weeks",
-                      [
-                        db.sequelize.literal(
-                          "dbo.fn_GetPortDestinationName(port_of_destination)"
-                        ),
-                        "port_destination_name",
-                      ],
-                    ],
-                  },
-                  { model: db.additional_cost },
-
-                  {
-                    model: db.payment_milestone,
-                    attributes: ["milestone", "percentage", "status"],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            model: db.po_items,
-            include: [
-              {
-                model: db.ItemsMaster,
-                attributes: { exclude: ["item_img", "item_img_name"] },
-              },
-            ],
-            attributes: [
-              "po_item_id",
-              "po_id",
-              "po_num",
-              "opo_id",
-              "item_id",
-              "item_code",
-              "item_name",
-              "item_type",
-              "line_total",
-              "no_packs",
-              "pack_size",
-              "pack_type",
-              "rate",
-              "remarks",
-              "address_id",
-              "po_qty",
-              "grn_qty",
-              [sequelize.literal("dbo.GetOpoNum(opo_id)"), "opo_num"],
-            ],
-          },
-          {
-            model: db.vendor,
-            include: [
-              { model: db.VendorsAddressDetailsMaster },
-              {
-                model: db.VendorsBanksDetailsMaster,
-                attributes: {
-                  exclude: ["bank_ref_cheque_name", "bank_ref_cheque"],
-                },
-              },
-            ],
-            attributes: [
-              "vendor_series",
-              "vendor_name",
-              "phone_number",
-              "alternate_phone_number",
-              "email",
-              "contact_person",
-              "contact_person_phone",
-              "contact_person_email",
-              "tax_id",
-              "payment_terms_id",
-              "pan_num",
-              "tin_num",
-              "gst_num",
-              "vat_num",
-              "reference_by",
-              "vendor_type_id",
-              "vendor_status",
-              "registration_date",
-              "compliance_status",
-            ],
-          },
-        ],
+        distinct: true,
       });
       res.status(200).json(result);
     } else {
       let result = await po_master.findAll({
         order: [["po_id", "DESC"]],
-        attributes: { exclude: ["delivery_terms"] },
         include: [
-          {
-            model: db.add_shippment_container,
-            attributes: [
-              "add_shippment_container_id",
-              "po_id",
-              "po_num",
-              "container_no",
-              "container_type",
-              "net_weight",
-              "total_gross_weight",
-              "package_detail",
-              "created_on",
-              "created_by",
-              "updated_on",
-              "updated_by",
-              "status",
-              "soncap_amount",
-              "bl_num",
-              "do_validity_dt",
-              "total_quantity",
-              "total_packages",
-              [
-                db.sequelize.literal("dbo.fn_containerType(container_type)"),
-                "container_size_name",
-              ],
-            ],
-            // include: [
-            //   {
-            //     model: db.shippment_container_detail,
-            //     include: [
-            //       {
-            //         model: db.UomMaster,
-            //         attributes: ["uom_name"],
-            //       },
-            //       {
-            //         model: db.PackageTypeMaster,
-            //         attributes: ["package_type"],
-            //       },
-            //     ],
-            //   },
-            // ],
-          },
-          { model: db.shippment_instructions },
-          {
-            model: db.shippment_advise_master,
-            include: [
-              { model: db.shippment_advise_additional_instruction },
-              { model: db.shipment_advise_items },
-            ],
-          },
-          {
-            model: db.opo_master,
-            include: [
-              {
-                model: db.Pfi_master,
-                include: [
-                  {
-                    model: db.commercial_invoice,
-                    include: [
-                      {
-                        model: db.ci_doc_movement_master,
-                        // include: [{ model: db.ci_shipping_doc_movement_dt }],
-                      },
-                      { model: db.custom_clearance },
-                      { model: db.soncap_master },
-                      { model: db.other_govt_charges },
-                      { model: db.nafdac_inspection_expense },
-                      { model: db.assessment },
-                      { model: db.nafdac_clearance },
-
-                      { model: db.operations_son },
-                      {
-                        model: db.nafdac_penalty,
-                        include: [{ model: db.nafdac_penalty_item }],
-                      },
-                    ],
-                  },
-                  { model: db.Pfi_line_items },
-                  {
-                    model: db.VendorsBanksDetailsMaster,
-                    attributes: {
-                      exclude: ["bank_ref_cheque_name", "bank_ref_cheque"],
-                    },
-                  },
-                  { model: db.insurance },
-                  { model: db.form_m },
-                  { model: db.letter_of_credit },
-                  { model: db.son_pfi },
-                  { model: db.CompanyMaster },
-                  { model: db.operations_nafdac },
-                  {
-                    model: db.paar,
-                    include: [{ model: db.paar_amendment_request }],
-                  },
-                  { model: db.operations_nafdac_master },
-                  { model: db.govt_charges },
-                  { model: db.nafdac_pfi },
-                ],
-              },
-              {
-                model: db.OprMaster,
-                attributes: [
-                  "opr_id",
-                  "opr_num",
-                  "vertical_id",
-                  "company_id",
-                  "opr_date",
-                  "division_id",
-                  "buy_from",
-                  "buying_house_id",
-                  "shipment_mode_id",
-                  "delivery_timeline_id",
-                  "department_id",
-                  "requested_by",
-                  "no_quot_email_alert",
-                  "remarks",
-                  "suppliers",
-                  "item_category_id",
-                  [
-                    db.sequelize.literal(
-                      "dbo.fn_ShipmentModeName(shipment_mode_id)"
-                    ),
-                    "shipment_mode_name",
-                  ],
-                ],
-                include: [
-                  {
-                    model: db.BuyingHouse,
-                    attributes: ["buying_house_name", "address_line1", "address_line2", "country"],
-                  },
-                  {
-                    model: db.CompanyMaster,
-                    include: [{ model: db.AddressMaster }],
-                  },
-                ],
-              },
-              {
-                model: db.quotation_master,
-                include: [
-                  { model: db.additional_cost_breakup_freigth },
-                  {
-                    model: db.quo_require_docs,
-                    where: {
-                      isAvailable: "true",
-                    },
-                  },
-                  {
-                    model: db.delivery_terms_quo,
-                    attributes: ["delivery_terms_name"],
-                  },
-                  {
-                    model: db.rfq,
-                    attributes: [
-                      "rfq_num",
-                      "remarks",
-                      "vendor_list",
-                      "req_doc_id",
-                      "port_of_destination",
-                      "shipment_type",
-                      "shipment_mode",
-                      "delivery_timeline_in_weeks",
-                      [
-                        db.sequelize.literal(
-                          "dbo.fn_GetPortDestinationName(port_of_destination)"
-                        ),
-                        "port_destination_name",
-                      ],
-                    ],
-                  },
-                  { model: db.additional_cost },
-                  {
-                    model: db.payment_milestone,
-                    attributes: ["milestone", "percentage", "status"],
-                  },
-                ],
-              },
-              {
-                model: db.quotation_master,
-                include: [
-                  { model: db.additional_cost_breakup_freigth },
-                  {
-                    model: db.quo_require_docs,
-                    where: {
-                      isAvailable: "true",
-                    },
-                  },
-                  {
-                    model: db.delivery_terms_quo,
-                    attributes: ["delivery_terms_name"],
-                  },
-                  {
-                    model: db.rfq,
-                    attributes: [
-                      "rfq_num",
-                      "remarks",
-                      "vendor_list",
-                      "req_doc_id",
-                      "port_of_destination",
-                      "shipment_type",
-                      "shipment_mode",
-                      "delivery_timeline_in_weeks",
-                      [
-                        db.sequelize.literal(
-                          "dbo.fn_GetPortDestinationName(port_of_destination)"
-                        ),
-                        "port_destination_name",
-                      ],
-                    ],
-                  },
-                  { model: db.additional_cost },
-                  {
-                    model: db.payment_milestone,
-                    attributes: ["milestone", "percentage", "status"],
-                  },
-                ],
-              },
-            ],
-          },
+          {model: db.quotation_master},
           {
             model: db.po_items,
             include: [
+              {model: db.quotation_items},
               {
                 model: db.ItemsMaster,
                 attributes: { exclude: ["item_img", "item_img_name"] },
@@ -810,6 +163,7 @@ const getPO = async (req, res, next) => {
     throw error;
   }
 };
+
 const getBankChargebypoid = async (req, res, next) => {
   let po_id = req.query.po_id;
   try {
@@ -864,75 +218,46 @@ const generatePo = async (req, res, next) => {
   const transaction = await db.sequelize.transaction(); // Start a transaction
   console.dir(req.body, { depth: null });
   try {
-    // const opo_id = opo_ids.length > 0 ? req.body.opo_ids.split(","): opo_ids;
-    // console.log("opo_id", opo_id);
+    
     const {
-      opo_ids,
-      opo_nums,
-      total_cost,
       quo_id,
+      quo_num,
+      total_cost,
+      rfq_id,
+      rfq_num,
+      opr_id,
+      opr_num,
+      unit_justification,
       vendor_id,
-      lead_time,
-      payment_terms,
-      delivery_terms,
-      created_by,
-      items_list,
+      item_list,
     } = req.body;
 
     const doc_code = "PO";
     const po_series = await generateSeries(doc_code);
 
-    const items2 = items_list.map((element) => ({
-      line_total: Number(element.opr_qty) * Number(element.rate),
-    }));
-
-    function calculateTotalLineTotal(itemsList) {
-      return itemsList.reduce((total, item) => {
-        return total + item.line_total; // Accumulate the line total
-      }, 0); // Start with 0
-    }
-    const totalAmount = calculateTotalLineTotal(items2);
     // Generate PO
     const po_response = await po_master.create(
       {
         po_num: po_series,
         vendor_id,
-        selected_opo_id: opo_ids,
-        opo_ids,
-        opo_nums,
-        total_cost: totalAmount,
-        lead_time,
+        rfq_num,
+        opr_ids: opr_id,
+        opr_nums: opr_num,
+        quo_num,
+        remark: unit_justification,
+        total_cost: total_cost,
         quo_id,
-        payment_terms,
-        delivery_terms,
-        status: 1,
-        created_by,
+        status: 15,
         created_on: new Date(), // Adjust date format if necessary
       },
       { transaction } // Pass the transaction
     );
 
-    // const arr = opo_ids.split(",").map(Number);
-
-    console.log("before updating opo_master");
-    await opo_master.update(
-      {
-        status: 2,
-      },
-      {
-        where: {
-          opo_master_id: opo_ids,
-        },
-        transaction, // Pass the transaction
-      }
-    );
-
     let lastInserted = po_response.po_id;
 
-    const items = items_list.map((element) => ({
+    const items = item_list.map((element) => ({
       po_id: lastInserted,
       po_num: po_series,
-      opo_id: element.opo_id,
       item_id: element.item_id,
       item_code: element.item_code,
       item_name: element.item_name,
@@ -944,11 +269,33 @@ const generatePo = async (req, res, next) => {
       rate: element.rate,
       status: 1,
       po_qty: element.opr_qty,
-      rfq_item_id: element.quotation_item.rfq_item_id,
-      quo_item_id: element.quotation_item.quo_item_id,
+      rfq_item_id: element.rfq_item_id,
+      quo_item_id: element.quo_item_id,
     }));
 
-    console.log("Items to be inserted:", items);
+    await db.quotation_master.update(
+      {
+        unit_justification,
+        status: 20,
+      },
+      {
+        where: {
+          quo_id: quo_id,
+        },
+        transaction, // Pass the transaction
+      }
+    );
+
+    await db.rfq.update(
+      {
+        status: 11, // Update the status to 10
+      },
+      {
+        where: { rfq_id }, // Find the row where opr_id matches
+      },
+      { transaction }
+    );
+
     const response = await po_items.bulkCreate(items, { transaction }); // Pass the transaction
 
     await transaction.commit(); // Commit the transaction if all is well
@@ -956,6 +303,7 @@ const generatePo = async (req, res, next) => {
       message: "Submit Successfully",
       po_id: lastInserted,
       po_num: po_series,
+      remarks: unit_justification
     });
   } catch (err) {
     await transaction.rollback(); // Rollback the transaction on error
