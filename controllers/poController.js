@@ -88,11 +88,56 @@ const getPO = async (req, res, next) => {
       let result = await po_master.findAll({
         order: [["po_id", "DESC"]],
         include: [
-          {model: db.quotation_master},
+          {
+            model: db.quotation_master,
+            include: [
+              {
+                model: db.additional_charges_lpr,
+                attributes: [
+                  "additional_charges_id",
+                  "reference_id",
+                  "reference_type",
+                  "reference_tableName",
+                  "charged_by",
+                  "delivery_term",
+                  "quotation_id",
+                  "quotation_number",
+                  "headOfExpense",
+                  "amount",
+                  "vat",
+                  "amtInclVat",
+                  "roundOff",
+                  "created_by",
+                  "updated_by",
+                ],
+              },
+              {
+                model: db.transportation_charges_lpr,
+                attributes: [
+                  "transportation_charges_id",
+                  "reference_id",
+                  "reference_type",
+                  "reference_tableName",
+                  "charged_by",
+                  "delivery_term",
+                  "quotation_id",
+                  "quotation_number",
+                  "no_of_truck",
+                  "truck_type",
+                  "transportation_rate",
+                  "transportation_amt",
+                  "vat",
+                  "total_amt_incl_vat",
+                  "created_by",
+                  "updated_by",
+                ],
+              },
+            ],
+          },
           {
             model: db.po_items,
             include: [
-              {model: db.quotation_items},
+              { model: db.quotation_items },
               {
                 model: db.ItemsMaster,
                 attributes: { exclude: ["item_img", "item_img_name"] },
@@ -218,7 +263,6 @@ const generatePo = async (req, res, next) => {
   const transaction = await db.sequelize.transaction(); // Start a transaction
   console.dir(req.body, { depth: null });
   try {
-    
     const {
       quo_id,
       quo_num,
@@ -303,7 +347,7 @@ const generatePo = async (req, res, next) => {
       message: "Submit Successfully",
       po_id: lastInserted,
       po_num: po_series,
-      remarks: unit_justification
+      remarks: unit_justification,
     });
   } catch (err) {
     await transaction.rollback(); // Rollback the transaction on error
