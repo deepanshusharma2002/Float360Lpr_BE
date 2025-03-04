@@ -6,6 +6,7 @@ const {
   OprItems,
   quotation_items,
   QuoDoc,
+  payment_milestone
 } = db;
 const getApprovalData = require("./GlobalFunction/GetApprovalData.js");
 
@@ -1449,6 +1450,7 @@ const createQuotation = async (req, res, next) => {
     address,
     total_cost,
     opr_lead_time,
+    payment_milestone,
     additional_charges,
     charges,
     ReuireDocData,
@@ -1459,9 +1461,9 @@ const createQuotation = async (req, res, next) => {
 
   try {
     // Validate required fields
-    if (!rfq_id || !vendor_id || !reference_no || !quote_valid_till) {
-      throw new Error("Missing required fields in payload");
-    }
+    // if (!rfq_id || !vendor_id || !reference_no || !quote_valid_till) {
+    //   throw new Error("Missing required fields in payload");
+    // }
 
     // Generate quotation series
     const doc_code = "QUO";
@@ -1493,6 +1495,24 @@ const createQuotation = async (req, res, next) => {
     );
 
     const lastInsertedId = newQuotationMaster.quo_id;
+
+        const promises = payment_milestone?.map(async (i) => {
+      await db.payment_milestone.create(
+        {
+          quo_id: lastInsertedId,
+          quo_num: quotation_series,
+          vendor_id: vendor_id,
+          initiated_point: i.initiated_point,
+          milestone: i.milestone,
+          percentage: i.percentage_value,
+          payment_status: 0,
+          status: 1,
+        },
+        { transaction }
+      );
+    });
+    
+    await Promise.all(promises);
 
     // Insert quotation items
     const updatedItemdata = ItemData?.filter((item) => item.item_code !== "")?.map((item) => ({

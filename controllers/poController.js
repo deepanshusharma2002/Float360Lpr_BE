@@ -91,6 +91,9 @@ const getPO = async (req, res, next) => {
           {
             model: db.quotation_master,
             include: [
+              {model: db.quo_require_docs},
+              {model: db.payment_milestone},
+              {model: db.rfq, attributes: ["company_id"]},
               {
                 model: db.additional_charges_lpr,
                 attributes: [
