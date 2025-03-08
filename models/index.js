@@ -98,6 +98,12 @@ db.branch = require("./branch_master.js")(sequelize, DataTypes);
 db.Division = require("./division.js")(sequelize, DataTypes);
 db.Vertical = require("./Masters/vertical_master.js")(sequelize, DataTypes);
 
+// GRN 
+db.grn_master = require('./GrnLPr/GrnMaster.js')(sequelize, DataTypes);
+db.grn_additional_charge = require('./GrnLPr/GnAdditionalCharge.js')(sequelize, DataTypes);
+db.grn_file = require('./GrnLPr/GrnFile.js')(sequelize, DataTypes);
+db.grn_item = require('./GrnLPr/GrnItemList.js')(sequelize,DataTypes);
+
 //OPR
 db.OprMaster = require("./Opr/opr_master.js")(sequelize, DataTypes);
 db.OprItems = require("./Opr/opr_items.js")(sequelize, DataTypes);

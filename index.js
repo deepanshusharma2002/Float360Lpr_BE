@@ -132,6 +132,9 @@ const paymentTermsRouter = require("./routes/paymentTermsRoutes");
 const payment = require("./routes/paymentRoutes.js");
 const ApprovalRoutes = require('./routes/approvalRoutes.js')
 
+//LprGrn 
+const grnLPr = require('./routes/GrnLprRoutes/GrnRoutes.js')
+
 //OPO
 const OpoRoutes = require('./routes/OverseasPurchaseOrder/OpoRoutes')
 
@@ -292,6 +295,9 @@ app.use("/api/approval", ApprovalRoutes)
 
 //OPO
 app.use("/api/opo", OpoRoutes);
+
+//Grn
+app.use("/api/create/grn", grnLPr)
 
 
 //addresss new
