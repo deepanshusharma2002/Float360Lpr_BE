@@ -279,7 +279,7 @@ const generatePo = async (req, res, next) => {
       item_list,
     } = req.body;
 
-    const doc_code = "PO";
+    const doc_code = "LPO";
     const po_series = await generateSeries(doc_code);
 
     // Generate PO
